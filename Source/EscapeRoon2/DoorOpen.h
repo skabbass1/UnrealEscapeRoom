@@ -35,7 +35,6 @@ private:
 	UPROPERTY(EditAnyWhere)
 	ATriggerVolume * PressurePlate;
 
-	UPROPERTY(EditAnyWhere)
 	AActor* ActorThatOpens;
 
 	
