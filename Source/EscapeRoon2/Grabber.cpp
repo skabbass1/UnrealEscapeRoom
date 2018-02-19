@@ -23,7 +23,11 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	/// Look for attached Physics Handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (!PhysicsHandle) {
+		UE_LOG(LogTemp, Error, TEXT("Physics Handle Not attached to: %s"), *GetOwner()->GetName());
+	}
 	
 }
 
@@ -33,17 +37,19 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FVector PlayerViewPointLocation;
-	FRotator  PlayerViewPointRotation;
+	FVector PlayerViewPointLocation; // Location of player relative to origin
+	FRotator  PlayerViewPointRotation; // Players line of sigth
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
 		OUT PlayerViewPointLocation,
 		OUT PlayerViewPointRotation
 	);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Location: %s Rotation: %s"), *PlayerLocation.ToString(), *PlayerRotation.ToString());
-
+	
 	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
-
+	
+	///Setup query parameters
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
+	
 	DrawDebugLine(
 		GetWorld(),
 		PlayerViewPointLocation,
@@ -55,6 +61,18 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		10.f
 	);
 
-	
+	/// Line-Trace (AKA Ray Cast) out to reach distance
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByObjectType(
+	OUT Hit,
+	PlayerViewPointLocation,
+	LineTraceEnd,
+	FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody)
+	);
+
+	AActor* ActorHit = Hit.GetActor();
+	if (ActorHit) {
+		UE_LOG(LogTemp, Warning, TEXT("We just hit: %s"), *ActorHit->GetName());
+	}	
 }
 
