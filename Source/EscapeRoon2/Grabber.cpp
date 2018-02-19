@@ -3,6 +3,7 @@
 #include "Grabber.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Components/PrimitiveComponent.h"
 
 #define OUT
 
@@ -25,7 +26,7 @@ void UGrabber::BeginPlay()
 
 	FindPhysicsHandleComponent();
 	BindGrabAndreleaseActionsToInputComponent();
-	
+
 }
 void UGrabber::FindPhysicsHandleComponent()
 {
@@ -57,20 +58,53 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	///LINE TRACE and see if we reach any actors with Physics Body Collison Channel Set
-	GetFirstPhysicsBodyInReach();
+	FVector PlayerViewPointLocation; // Location of player relative to origin
+	FRotator  PlayerViewPointRotation; // Players line of sigth
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation
+	);
+
+
+	FVector MoveToThisLocation = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
+
+	// if physics handle is attached
+	if (PhysicsHandle->GrabbedComponent) {
+		
+		//move the object we are holding
+		PhysicsHandle->SetTargetLocation(MoveToThisLocation);
+	}
 
 	
+
+
 }
 
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"));
+	///LINE TRACE and see if we reach any actors with Physics Body Collison Channel Set
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+
+	/// If we hit something , then attach a physics handle
+	if (ActorHit) {
+		// attach physics handle
+		PhysicsHandle->GrabComponent(
+			ComponentToGrab,
+			NAME_None, // No bone to grab on since not dealing with skeletons
+			ComponentToGrab->GetOwner()->GetActorLocation(),
+			true // allow rotation
+
+		);
+	}
+	
 }
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab Released"));
+	// Drop the held object
+	PhysicsHandle->ReleaseComponent();
 }
 
 const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
