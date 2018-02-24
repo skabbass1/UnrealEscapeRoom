@@ -22,8 +22,11 @@ UDoorOpen::UDoorOpen()
 void UDoorOpen::BeginPlay()
 {
 	Super::BeginPlay();
-
 	Owner = GetOwner();
+
+	if (!PressurePlate) {
+		UE_LOG(LogTemp, Error, TEXT("%s missing Pressure Plate Trigger Volume"), *Owner->GetName());
+	}
 
 }
 
@@ -45,6 +48,10 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!PressurePlate) {
+		return;
+	}
+	
 	if (GetTotalMassOfOveralppingActors() > MaxPressurePadWeightToOpenDoor) {
 		OpenDoor();
 	}
