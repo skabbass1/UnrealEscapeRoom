@@ -37,12 +37,13 @@ private:
 	float MaxPressurePadWeightToOpenDoor = 100.0f;
 
 	UPROPERTY(EditAnyWhere)
-	ATriggerVolume * PressurePlate;
+	ATriggerVolume * PressurePlate = nullptr;
 
 	UPROPERTY(EditAnyWhere)
 	float CloseDoorAfterElapsedSeconds = 1.0f;
 
-	AActor* Owner;
+	// The owning Door
+	AActor* Owner = nullptr;
 	
 	float LastDoorOpenTime = -1.0f;
 
