@@ -22,21 +22,17 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
-	
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+private:
+	struct FPlayerViewPoint {
+		FVector PlayerViewPointLocation; // Location of player relative to origin
+		FRotator  PlayerViewPointRotation; // Players line of sight
+	};
 
 private:
-	// How far ahead of the player can we reach in cm
-	float Reach = 100.f;
-
-	UPhysicsHandleComponent* PhysicsHandle = nullptr;
-	UInputComponent* InputComponent = nullptr;
-
 	// Find attached Physics Handle
 	void FindPhysicsHandleComponent();
 	
@@ -49,5 +45,18 @@ private:
 	// Release the grabbed object
 	void Release();
 
-	const FHitResult GetFirstPhysicsBodyInReach();
+	FHitResult GetFirstPhysicsBodyInReach() const;
+
+	FVector GetFirstPlayerLineTraceEnd() const ;
+
+	FPlayerViewPoint GetPlayerViewPoint() const;
+
+
+
+private:
+	// How far ahead of the player can we reach in cm
+	float Reach = 100.f;
+
+	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UInputComponent* InputComponent = nullptr;
 };
