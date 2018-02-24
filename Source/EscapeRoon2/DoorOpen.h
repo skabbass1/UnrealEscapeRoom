@@ -33,6 +33,9 @@ private:
 	UPROPERTY(VisibleAnyWhere)
 	float OpenAngle = 90.0f;
 
+	UPROPERTY(VisibleAnyWhere)
+	float MaxPressurePadWeightToOpenDoor = 100.0f;
+
 	UPROPERTY(EditAnyWhere)
 	ATriggerVolume * PressurePlate;
 
@@ -41,8 +44,8 @@ private:
 
 	AActor* Owner;
 	
-	AActor* ActorThatOpens;
-
 	float LastDoorOpenTime = -1.0f;
+
+	float GetTotalMassOfOveralppingActors() const;
 	
 };
