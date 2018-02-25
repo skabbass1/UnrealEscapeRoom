@@ -17,7 +17,6 @@ UDoorOpen::UDoorOpen()
 	// ...
 }
 
-
 // Called when the game starts
 void UDoorOpen::BeginPlay()
 {
@@ -30,19 +29,6 @@ void UDoorOpen::BeginPlay()
 
 }
 
-void UDoorOpen::OpenDoor()
-{
-	Owner->SetActorRotation(FRotator(0.f, -OpenAngle, 0.f));
-	LastDoorOpenTime = GetWorld()->GetTimeSeconds();
-}
-
-void UDoorOpen::CloseDoor()
-{
-	Owner->SetActorRotation(FRotator(0.f, 0.0f, 0.f));
-	LastDoorOpenTime = -1.0;
-}
-
-
 // Called every frame
 void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -53,15 +39,10 @@ void UDoorOpen::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	}
 	
 	if (GetTotalMassOfOveralppingActors() > MaxPressurePadWeightToOpenDoor) {
-		OpenDoor();
+		OnOpenRequest.Broadcast();
 	}
 	else {
-		// Ensure door is open
-		if (LastDoorOpenTime > 0.0) {
-			if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime >= CloseDoorAfterElapsedSeconds) {
-				CloseDoor();
-			}
-		}	
+		OnCloseRequest.Broadcast();
 	}
 }
 

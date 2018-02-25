@@ -8,6 +8,8 @@
 #include "DoorOpen.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPEROON2_API UDoorOpen : public UActorComponent
 {
@@ -21,32 +23,27 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void OpenDoor();
-	void CloseDoor();
-
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(BlueprintAssignable)
+	FDoorEvent OnOpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+	FDoorEvent OnCloseRequest;
+
 private:
 	
-	UPROPERTY(VisibleAnyWhere)
-	float OpenAngle = 90.0f;
-
 	UPROPERTY(VisibleAnyWhere)
 	float MaxPressurePadWeightToOpenDoor = 100.0f;
 
 	UPROPERTY(EditAnyWhere)
 	ATriggerVolume * PressurePlate = nullptr;
 
-	UPROPERTY(EditAnyWhere)
-	float CloseDoorAfterElapsedSeconds = 1.0f;
-
 	// The owning Door
 	AActor* Owner = nullptr;
 	
-	float LastDoorOpenTime = -1.0f;
-
 	float GetTotalMassOfOveralppingActors() const;
 	
 };
